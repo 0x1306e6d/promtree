@@ -1,5 +1,11 @@
 import { Heading } from "evergreen-ui";
 
+import Layout from "./components/Layout";
+
 export default function App() {
-  return <Heading>Hello, World!</Heading>;
+  return (
+    <Layout>
+      <Heading>Hello, World!</Heading>
+    </Layout>
+  );
 }
