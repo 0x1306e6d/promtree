@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 import { majorScale, Pane } from "evergreen-ui";
+
 import Navigation from "./Navigation";
 
 interface LayoutProps {
