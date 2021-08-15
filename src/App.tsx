@@ -1,11 +1,10 @@
-import { Heading } from "evergreen-ui";
-
 import Layout from "./components/Layout";
+import UrlInput from "./components/UrlInput";
 
 export default function App() {
   return (
     <Layout>
-      <Heading>Hello, World!</Heading>
+      <UrlInput />
     </Layout>
   );
 }
