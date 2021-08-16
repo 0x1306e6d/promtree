@@ -27,12 +27,15 @@ export default function MetricTable({ url }: MetricTableProps) {
         <Table.TextHeaderCell>Count</Table.TextHeaderCell>
       </Table.Head>
       <Table.Body>
-        {Object.values(meters).map((meter) => (
-          <Table.Row key={meter.name}>
-            <Table.TextCell>{meter.name}</Table.TextCell>
-            <Table.TextCell isNumber>{meter.count}</Table.TextCell>
-          </Table.Row>
-        ))}
+        {Object.values(meters)
+          .sort((a, b) => a.count - b.count)
+          .reverse()
+          .map((meter) => (
+            <Table.Row key={meter.name}>
+              <Table.TextCell>{meter.name}</Table.TextCell>
+              <Table.TextCell isNumber>{meter.count}</Table.TextCell>
+            </Table.Row>
+          ))}
       </Table.Body>
     </Table>
   );
