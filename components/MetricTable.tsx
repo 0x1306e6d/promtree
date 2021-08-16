@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 
 import { Table } from "evergreen-ui";
 
-import type Meter from "../types/Meter";
+import type MeterTree from "../types/MeterTree";
 
 interface MetricTableProps {
   url: string;
 }
 
 export default function MetricTable({ url }: MetricTableProps) {
-  const [meters, setMeters] = useState<{ [name: string]: Meter }>({});
+  const [meters, setMeters] = useState<MeterTree | undefined>(undefined);
 
   useEffect(() => {
     const fetchPrometheus = async () => {
@@ -27,13 +27,11 @@ export default function MetricTable({ url }: MetricTableProps) {
         <Table.TextHeaderCell>Count</Table.TextHeaderCell>
       </Table.Head>
       <Table.Body>
-        {Object.values(meters)
-          .sort((a, b) => a.count - b.count)
-          .reverse()
-          .map((meter) => (
-            <Table.Row key={meter.name}>
-              <Table.TextCell>{meter.name}</Table.TextCell>
-              <Table.TextCell isNumber>{meter.count}</Table.TextCell>
+        {meters &&
+          Object.entries(meters.children).map(([key, value]) => (
+            <Table.Row key={key}>
+              <Table.TextCell>{key}</Table.TextCell>
+              <Table.TextCell isNumber>{value.count}</Table.TextCell>
             </Table.Row>
           ))}
       </Table.Body>

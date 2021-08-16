@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import isUrl from "is-url";
 
 import parsePrometheus from "../../libs/parsePrometheus";
+import treefy from "../../libs/treefy";
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,7 +15,8 @@ export default async function handler(
     const content = await response.text();
     if (response.ok) {
       const meters = parsePrometheus(content);
-      res.status(200).json(meters);
+      const tree = treefy(Object.values(meters));
+      res.status(200).json(tree);
     } else {
       res.status(response.status).send(content);
     }
