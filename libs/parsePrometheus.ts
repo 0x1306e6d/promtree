@@ -7,47 +7,50 @@ export default function parsePrometheus(content: string): {
 } {
   let meters: { [name: string]: Meter } = {};
   // TODO(ghkim3221): Refactoring
-  content.split("\n").forEach((line) => {
-    if (line.startsWith("# HELP")) {
-      const { name, description } = parseHelpText(line);
-      if (name in meters) {
-        meters[name] = produce(meters[name], (draft) => {
-          draft.description = description;
-        });
+  content
+    .split("\n")
+    .filter((line) => line)
+    .forEach((line) => {
+      if (line.startsWith("# HELP")) {
+        const { name, description } = parseHelpText(line);
+        if (name in meters) {
+          meters[name] = produce(meters[name], (draft) => {
+            draft.description = description;
+          });
+        } else {
+          meters[name] = {
+            name: name,
+            description: description,
+            type: "",
+            count: 0,
+          };
+        }
+      } else if (line.startsWith("# TYPE")) {
+        const { name, type } = parseTypeInformation(line);
+        if (name in meters) {
+          meters[name] = produce(meters[name], (draft) => {
+            draft.type = type;
+          });
+        } else {
+          meters[name] = {
+            name: name,
+            description: "",
+            type: type,
+            count: 0,
+          };
+        }
       } else {
-        meters[name] = {
-          name: name,
-          description: description,
-          type: "",
-          count: 0,
-        };
+        const nameIndex = Math.min(line.indexOf("{"), line.indexOf(" "));
+        const name = line.substring(0, nameIndex);
+        if (name in meters) {
+          meters[name] = produce(meters[name], (draft) => {
+            draft.count += 1;
+          });
+        } else {
+          meters[name] = { name: name, description: "", type: "", count: 1 };
+        }
       }
-    } else if (line.startsWith("# TYPE")) {
-      const { name, type } = parseTypeInformation(line);
-      if (name in meters) {
-        meters[name] = produce(meters[name], (draft) => {
-          draft.type = type;
-        });
-      } else {
-        meters[name] = {
-          name: name,
-          description: "",
-          type: type,
-          count: 0,
-        };
-      }
-    } else {
-      const nameIndex = Math.min(line.indexOf("{"), line.indexOf(" "));
-      const name = line.substring(0, nameIndex);
-      if (name in meters) {
-        meters[name] = produce(meters[name], (draft) => {
-          draft.count += 1;
-        });
-      } else {
-        meters[name] = { name: name, description: "", type: "", count: 1 };
-      }
-    }
-  });
+    });
   return meters;
 }
 
