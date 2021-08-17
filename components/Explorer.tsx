@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   ChevronRightIcon,
+  ChevronUpIcon,
   Heading,
   IconButton,
   majorScale,
@@ -48,34 +49,25 @@ export default function Explorer({ root }: ExplorerProps) {
             </Button>
           ))}
       </Breadcrumbs>
-      {current.parent && (
-        <Item
-          name=".."
-          onClick={onItemClick(current.parent)}
-          tree={current.parent}
-        />
-      )}
+      {current.parent && <Parent onClick={onItemClick(current.parent)} />}
       {Object.entries(current.children)
         .sort()
-        .map(([key, child]) => (
-          <Item
-            key={key}
-            name={key}
+        .map(([key, child], index) => (
+          <Child
+            key={`child-${index}`}
+            child={child}
             onClick={onItemClick(child)}
-            tree={child}
           />
         ))}
     </Pane>
   );
 }
 
-interface ItemProps {
-  name: string;
+interface ParentProps {
   onClick: () => void;
-  tree: DoublyLinkedMeterTree;
 }
 
-function Item({ name, onClick, tree }: ItemProps) {
+function Parent({ onClick }: ParentProps) {
   return (
     <Card
       border="default"
@@ -84,8 +76,31 @@ function Item({ name, onClick, tree }: ItemProps) {
       padding={majorScale(2)}
     >
       <Pane alignItems="center" display="flex" flex={1} flexDirection="row">
-        <Heading marginRight={majorScale(1)}>{name}</Heading>
-        <Pill>{tree.count}</Pill>
+        <Heading marginRight={majorScale(1)}>..</Heading>
+      </Pane>
+      <Pane>
+        <IconButton icon={ChevronUpIcon} onClick={onClick} />
+      </Pane>
+    </Card>
+  );
+}
+
+interface ChildProps {
+  child: DoublyLinkedMeterTree;
+  onClick: () => void;
+}
+
+function Child({ child, onClick }: ChildProps) {
+  return (
+    <Card
+      border="default"
+      display="flex"
+      margin={majorScale(1)}
+      padding={majorScale(2)}
+    >
+      <Pane alignItems="center" display="flex" flex={1} flexDirection="row">
+        <Heading marginRight={majorScale(1)}>{child.name}</Heading>
+        <Pill>{child.count}</Pill>
       </Pane>
       <Pane>
         <IconButton icon={ChevronRightIcon} onClick={onClick} />
