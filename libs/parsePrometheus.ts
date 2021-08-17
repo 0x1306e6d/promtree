@@ -40,7 +40,7 @@ export default function parsePrometheus(content: string): {
           };
         }
       } else {
-        const nameIndex = Math.min(line.indexOf("{"), line.indexOf(" "));
+        const nameIndex = parseNameIndex(line);
         const name = line.substring(0, nameIndex);
         if (name in meters) {
           meters[name] = produce(meters[name], (draft) => {
@@ -68,4 +68,18 @@ function parseTypeInformation(line: string): { name: string; type: string } {
   const name = remaining.substring(0, remaining.indexOf(" "));
   const type = remaining.substring(name.length + 1);
   return { name, type };
+}
+
+function parseNameIndex(line: string): number {
+  const bracket = line.indexOf("{");
+  if (bracket > 0) {
+    return bracket;
+  }
+
+  const whitespace = line.indexOf(" ");
+  if (whitespace > 0) {
+    return whitespace;
+  }
+
+  return -1;
 }
