@@ -1,5 +1,5 @@
+import Main from "./Main";
 import Layout from "../components/Layout";
-import MetricTable from "../components/MetricTable";
 import UrlInput from "../components/UrlInput";
 
 import useUrl from "../hooks/useUrl";
@@ -9,7 +9,7 @@ export default function IndexPage() {
   return (
     <Layout>
       <UrlInput />
-      {url && <MetricTable url={url} />}
+      {url && <Main url={url} />}
     </Layout>
   );
 }
