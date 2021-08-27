@@ -102,9 +102,11 @@ function Child({ child, onClick }: ChildProps) {
         <Heading marginRight={majorScale(1)}>{child.name}</Heading>
         <Pill>{child.count}</Pill>
       </Pane>
-      <Pane>
-        <IconButton icon={ChevronRightIcon} onClick={onClick} />
-      </Pane>
+      {Object.keys(child.children).length > 0 && (
+        <Pane>
+          <IconButton icon={ChevronRightIcon} onClick={onClick} />
+        </Pane>
+      )}
     </Card>
   );
 }
