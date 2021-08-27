@@ -1,6 +1,8 @@
-name: Build pull request
+name: Build
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
