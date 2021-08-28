@@ -1,6 +1,7 @@
 import produce from "immer";
 
 import type Meter from "../types/Meter";
+import MetricType from "../types/MetricType";
 
 export default function parsePrometheus(content: string): {
   [name: string]: Meter;
@@ -21,7 +22,7 @@ export default function parsePrometheus(content: string): {
           meters[name] = {
             name: name,
             description: description,
-            type: "",
+            type: MetricType.Unknown,
             count: 0,
           };
         }
@@ -47,7 +48,12 @@ export default function parsePrometheus(content: string): {
             draft.count += 1;
           });
         } else {
-          meters[name] = { name: name, description: "", type: "", count: 1 };
+          meters[name] = {
+            name: name,
+            description: "",
+            type: MetricType.Unknown,
+            count: 1,
+          };
         }
       }
     });
@@ -62,11 +68,15 @@ function parseHelpText(line: string): { name: string; description: string } {
   return { name, description };
 }
 
-function parseTypeInformation(line: string): { name: string; type: string } {
+function parseTypeInformation(line: string): {
+  name: string;
+  type: MetricType;
+} {
   const remaining = line.substring(7); // `# TYPE` + trailing whiespace.
 
   const name = remaining.substring(0, remaining.indexOf(" "));
-  const type = remaining.substring(name.length + 1);
+  const typeString = remaining.substring(name.length + 1).toLowerCase();
+  const type = typeString as MetricType;
   return { name, type };
 }
 

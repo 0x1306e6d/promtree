@@ -10,11 +10,14 @@ import {
   majorScale,
   Pane,
   Pill,
+  Text,
 } from "evergreen-ui";
 
 import type DoublyLinkedMeterTree from "../types/DoublyLinkedMeterTree";
+import type Meter from "../types/Meter";
 
 import Breadcrumbs from "./Breadcrumbs";
+import MetricTypeBadge from "./MetricTypeBadge";
 
 interface ExplorerProps {
   root: DoublyLinkedMeterTree;
@@ -95,19 +98,38 @@ function Child({ child, onClick }: ChildProps) {
     <Card
       border="default"
       display="flex"
+      flexDirection="column"
       margin={majorScale(1)}
       padding={majorScale(2)}
     >
-      <Pane alignItems="center" display="flex" flex={1} flexDirection="row">
-        <Heading marginRight={majorScale(1)}>{child.name}</Heading>
-        <Pill>{child.count}</Pill>
-      </Pane>
-      {Object.keys(child.children).length > 0 && (
-        <Pane>
-          <IconButton icon={ChevronRightIcon} onClick={onClick} />
+      <Pane alignItems="center" display="flex">
+        <Pane flex={1}>
+          <Pane alignItems="center" display="flex">
+            <Heading marginRight={majorScale(1)}>{child.name}</Heading>
+            <Pill>{child.count}</Pill>
+          </Pane>
         </Pane>
-      )}
+        {Object.keys(child.children).length > 0 && (
+          <Pane>
+            <IconButton icon={ChevronRightIcon} onClick={onClick} />
+          </Pane>
+        )}
+      </Pane>
+      {child.meter && <MetricInformation metric={child.meter} />}
     </Card>
+  );
+}
+
+interface MetricInformationProps {
+  metric: Meter;
+}
+
+function MetricInformation({ metric }: MetricInformationProps) {
+  return (
+    <Pane alignItems="center" display="flex" flexDirection="row">
+      <Text marginRight={majorScale(1)}>{metric.name}</Text>
+      <MetricTypeBadge type={metric.type} />
+    </Pane>
   );
 }
 
