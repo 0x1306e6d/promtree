@@ -20,9 +20,10 @@ export default function Main({ url }: MainProps) {
 
   useEffect(() => {
     const fetchPrometheus = async () => {
-      const response = await fetch(`/api/prometheus?url=${url}`);
+      const validUrl = new URL(url);
+      const response = await fetch(`/api/prometheus?url=${validUrl.href}`);
       const newTree: MeterTree = await response.json();
-      setTree(doubleLink("", newTree));
+      setTree(doubleLink(validUrl.hostname, newTree));
     };
     fetchPrometheus();
   }, [url]);
