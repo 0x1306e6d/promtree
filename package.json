@@ -1,6 +1,6 @@
 {
   "name": "promtree",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A web application which visualizes tree of Prometheus exporter.",
   "bugs": {
     "url": "https://github.com/ghkim3221/promtree/issues"
