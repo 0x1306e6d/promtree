@@ -40,7 +40,6 @@ export default function Explorer({ root }: ExplorerProps) {
     <Pane display="flex" flexDirection="column">
       <Breadcrumbs>
         {ancestors
-          .filter((ancestor) => ancestor.parent)
           .reverse()
           .map((ancestor, index) => (
             <Button
