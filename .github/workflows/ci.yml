@@ -13,7 +13,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: cd web && npm ci && npm run build
       - run: go vet ./...
       - run: go test ./...
 
@@ -24,7 +28,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: cd frontend && npm ci && npm run build
+      - run: cd web && npm ci && npm run build
 
   build:
     needs: [backend, frontend]
@@ -33,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version-file: go.mod
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
