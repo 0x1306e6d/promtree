@@ -1,31 +1,23 @@
-FROM node:alpine AS deps
+# Stage 1: Build frontend
+FROM node:22-alpine AS frontend
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ .
+RUN npm run build
 
-RUN apk add --no-cache libc6-compat
+# Stage 2: Build Go binary
+FROM golang:1.22-alpine AS backend
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
-FROM node:alpine AS builder
-WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-COPY --from=deps /app/node_modules ./node_modules
-RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
+COPY --from=frontend /app/frontend/dist ./frontend/dist
+RUN CGO_ENABLED=0 go build -o /promtree ./cmd/promtree
 
-FROM node:alpine AS runner
-WORKDIR /app
-
-ENV NODE_ENV production
-
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-USER nextjs
-
-EXPOSE 3000
-
-CMD ["yarn", "start"]
+# Stage 3: Final image
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=backend /promtree /promtree
+EXPOSE 8080
+ENTRYPOINT ["/promtree"]
