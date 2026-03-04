@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"reflect"
 	"sort"
 	"testing"
 )
@@ -41,10 +42,11 @@ func TestParse(t *testing.T) {
 		description string
 		metricType  MetricType
 		count       int
+		labels      map[string][]string
 	}{
-		{"http_request_duration_seconds", "A histogram of the request duration.", Histogram, 1},
-		{"http_requests_total", "The total number of HTTP requests.", Counter, 2},
-		{"node_cpu_seconds_total", "Seconds the CPUs spent in each mode.", Gauge, 2},
+		{"http_request_duration_seconds", "A histogram of the request duration.", Histogram, 1, nil},
+		{"http_requests_total", "The total number of HTTP requests.", Counter, 2, map[string][]string{"code": {"200", "400"}, "method": {"post"}}},
+		{"node_cpu_seconds_total", "Seconds the CPUs spent in each mode.", Gauge, 2, map[string][]string{"cpu": {"0"}, "mode": {"idle", "system"}}},
 	}
 
 	for i, tt := range tests {
@@ -60,6 +62,9 @@ func TestParse(t *testing.T) {
 		}
 		if m.Count != tt.count {
 			t.Errorf("meter[%d]: expected count %d, got %d", i, tt.count, m.Count)
+		}
+		if !reflect.DeepEqual(m.Labels, tt.labels) {
+			t.Errorf("meter[%d]: expected labels %v, got %v", i, tt.labels, m.Labels)
 		}
 	}
 }
