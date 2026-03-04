@@ -10,6 +10,7 @@ export interface Meter {
   readonly description: string;
   readonly type: MetricType;
   readonly count: number;
+  readonly labels?: { [key: string]: string[] };
 }
 
 export interface MeterTree {

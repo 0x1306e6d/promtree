@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/prometheus/common/expfmt"
@@ -20,14 +21,50 @@ func Parse(content string) ([]Meter, error) {
 
 	meters := make([]Meter, 0, len(families))
 	for name, family := range families {
+		mtype := convertType(family.GetType())
+		labels := extractLabels(family.GetMetric(), mtype)
+
 		meters = append(meters, Meter{
 			Name:        name,
 			Description: family.GetHelp(),
-			Type:        convertType(family.GetType()),
+			Type:        mtype,
 			Count:       len(family.GetMetric()),
+			Labels:      labels,
 		})
 	}
 	return meters, nil
+}
+
+func extractLabels(metrics []*dto.Metric, mtype MetricType) map[string][]string {
+	unique := make(map[string]map[string]struct{})
+	for _, m := range metrics {
+		for _, lp := range m.GetLabel() {
+			name := lp.GetName()
+			if mtype == Histogram && name == "le" {
+				continue
+			}
+			if mtype == Summary && name == "quantile" {
+				continue
+			}
+			if unique[name] == nil {
+				unique[name] = make(map[string]struct{})
+			}
+			unique[name][lp.GetValue()] = struct{}{}
+		}
+	}
+	if len(unique) == 0 {
+		return nil
+	}
+	result := make(map[string][]string, len(unique))
+	for k, vs := range unique {
+		vals := make([]string, 0, len(vs))
+		for v := range vs {
+			vals = append(vals, v)
+		}
+		sort.Strings(vals)
+		result[k] = vals
+	}
+	return result
 }
 
 func convertType(t dto.MetricType) MetricType {

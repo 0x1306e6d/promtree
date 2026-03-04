@@ -13,8 +13,9 @@ const (
 
 // Meter represents a parsed Prometheus metric with its metadata and sample count.
 type Meter struct {
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Type        MetricType `json:"type"`
-	Count       int        `json:"count"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Type        MetricType          `json:"type"`
+	Count       int                 `json:"count"`
+	Labels      map[string][]string `json:"labels,omitempty"`
 }

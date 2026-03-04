@@ -6,6 +6,7 @@ import {
   Gauge,
   BarChart3,
   LineChart,
+  Tag,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { DoublyLinkedMeterTree } from "@/types/meter";
 import type { MetricType } from "@/types/meter";
 import MetricTypeBadge from "./metric-type-badge";
@@ -174,6 +180,40 @@ export default function Explorer({ root }: ExplorerProps) {
                   {child.meter.description}
                 </p>
               )}
+              {child.meter?.labels &&
+                Object.keys(child.meter.labels).length > 0 && (
+                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                    <Tag className="h-3 w-3 shrink-0 text-muted-foreground/50" />
+                    {Object.entries(child.meter.labels)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([key, values]) => (
+                        <Tooltip key={key}>
+                          <TooltipTrigger asChild>
+                            <div className="inline-flex cursor-default items-center gap-1 rounded-md border bg-muted/40 px-1.5 py-0.5 text-[11px] transition-colors hover:border-primary/30 hover:bg-muted/60">
+                              <span className="text-muted-foreground">
+                                {key}
+                              </span>
+                              <span className="rounded bg-primary/10 px-1 font-semibold text-primary">
+                                {values.length}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-xs">
+                            <div className="flex flex-wrap gap-1">
+                              {values.map((v) => (
+                                <code
+                                  key={v}
+                                  className="rounded bg-background/20 px-1 py-0.5 text-[11px]"
+                                >
+                                  {v}
+                                </code>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                  </div>
+                )}
               {child.meter && (
                 <span className="text-xs text-muted-foreground/70">
                   {child.meter.name}
