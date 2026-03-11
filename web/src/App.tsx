@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import Layout from "@/components/layout";
 import UrlInput from "@/components/url-input";
 import HeroSection from "@/components/hero-section";
@@ -8,9 +8,10 @@ import ErrorAlert from "@/components/error-alert";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useMetricTree } from "@/hooks/use-metric-tree";
 import { useSearchHistory } from "@/hooks/use-search-history";
+import { useUrlState } from "@/hooks/use-url-state";
 
 export default function App() {
-  const [url, setUrl] = useState("");
+  const { url, path, setUrl, setPath } = useUrlState();
   const { tree, loading, error } = useMetricTree(url);
   const { history, addEntry, removeEntry, clearHistory } = useSearchHistory();
 
@@ -19,7 +20,7 @@ export default function App() {
       setUrl(newUrl);
       addEntry(newUrl);
     },
-    [addEntry]
+    [setUrl, addEntry]
   );
 
   const hasSubmitted = url !== "";
@@ -39,7 +40,9 @@ export default function App() {
             <UrlInput onSubmit={handleSubmit} compact />
             {loading && <ExplorerSkeleton />}
             {error && <ErrorAlert message={error} />}
-            {tree && <Explorer root={tree} />}
+            {tree && (
+              <Explorer root={tree} path={path} onNavigate={setPath} />
+            )}
           </div>
         )}
       </Layout>
