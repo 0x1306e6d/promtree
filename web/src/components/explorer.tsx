@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import {
   ChevronRight,
   FolderTree,
@@ -25,10 +25,13 @@ import {
 } from "@/components/ui/tooltip";
 import type { DoublyLinkedMeterTree } from "@/types/meter";
 import type { MetricType } from "@/types/meter";
+import { resolveTreePath, getTreePath } from "@/lib/resolve-tree-path";
 import MetricTypeBadge from "./metric-type-badge";
 
 interface ExplorerProps {
   root: DoublyLinkedMeterTree;
+  path: string;
+  onNavigate: (path: string, replace?: boolean) => void;
 }
 
 function getAncestors(
@@ -66,8 +69,19 @@ function MetricIcon({ type }: { type: MetricType }) {
   }
 }
 
-export default function Explorer({ root }: ExplorerProps) {
-  const [current, setCurrent] = useState(root);
+export default function Explorer({ root, path, onNavigate }: ExplorerProps) {
+  const resolved = resolveTreePath(root, path);
+  const current = resolved ?? root;
+
+  useEffect(() => {
+    if (!resolved && path) {
+      onNavigate("", true);
+    }
+  }, [resolved, path, onNavigate]);
+
+  const navigateTo = (node: DoublyLinkedMeterTree) => {
+    onNavigate(getTreePath(node));
+  };
 
   const ancestors = getAncestors(current).reverse();
   const entries = Object.entries(current.children).sort(([a], [b]) =>
@@ -97,7 +111,7 @@ export default function Explorer({ root }: ExplorerProps) {
                 ) : (
                   <button
                     className="text-sm transition-colors hover:text-foreground"
-                    onClick={() => setCurrent(ancestor)}
+                    onClick={() => navigateTo(ancestor)}
                   >
                     {ancestor.name}
                   </button>
@@ -116,7 +130,7 @@ export default function Explorer({ root }: ExplorerProps) {
         <Card
           key={key}
           className="group cursor-pointer transition-all duration-200 hover:border-primary/30 hover:shadow-md"
-          onClick={() => setCurrent(child)}
+          onClick={() => navigateTo(child)}
         >
           <div className="flex items-center gap-3 p-4">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
