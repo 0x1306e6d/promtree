@@ -38,9 +38,9 @@ export default function HeroSection({
         Try{" "}
         <button
           className="underline underline-offset-2 hover:text-foreground transition-colors"
-          onClick={() => onSubmit("https://prometheus.demo.do.prometheus.io/metrics")}
+          onClick={() => onSubmit("https://node.demo.prometheus.io/metrics")}
         >
-          https://prometheus.demo.do.prometheus.io/metrics
+          https://node.demo.prometheus.io/metrics
         </button>
       </p>
 
