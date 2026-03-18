@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronRight,
   FolderTree,
@@ -18,11 +18,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { DoublyLinkedMeterTree } from "@/types/meter";
 import type { MetricType } from "@/types/meter";
 import { resolveTreePath, getTreePath } from "@/lib/resolve-tree-path";
@@ -67,6 +62,92 @@ function MetricIcon({ type }: { type: MetricType }) {
     default:
       return <Activity {...props} />;
   }
+}
+
+function LeafCard({ child }: { child: DoublyLinkedMeterTree }) {
+  const [expandedLabel, setExpandedLabel] = useState<string | null>(null);
+
+  const labelEntries = child.meter?.labels
+    ? Object.entries(child.meter.labels).sort(([a], [b]) => a.localeCompare(b))
+    : [];
+
+  return (
+    <Card className="transition-all duration-200 hover:border-primary/30 hover:shadow-md">
+      <div className="flex items-start gap-3 p-4">
+        <div
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+            child.meter
+              ? iconColorMap[child.meter.type] ??
+                "bg-muted text-muted-foreground"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          <MetricIcon type={child.meter?.type ?? ""} />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{child.name}</span>
+            {child.meter && <MetricTypeBadge type={child.meter.type} />}
+          </div>
+          {child.meter?.description && (
+            <p className="line-clamp-2 text-sm text-muted-foreground">
+              {child.meter.description}
+            </p>
+          )}
+          {labelEntries.length > 0 && (
+            <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+              <Tag className="h-3 w-3 shrink-0 text-muted-foreground/50" />
+              {labelEntries.map(([key, values]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() =>
+                    setExpandedLabel(expandedLabel === key ? null : key)
+                  }
+                  className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] transition-colors hover:border-primary/30 hover:bg-muted/60 ${
+                    expandedLabel === key
+                      ? "border-primary/40 bg-muted/70"
+                      : "bg-muted/40"
+                  }`}
+                >
+                  <span className="text-muted-foreground">{key}</span>
+                  <span className="rounded bg-primary/10 px-1 font-semibold text-primary">
+                    {values.length}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {expandedLabel &&
+            child.meter?.labels?.[expandedLabel] && (
+              <div className="mt-1.5 rounded-md border bg-muted/30 p-2">
+                <div className="mb-1.5 text-[11px] font-medium text-muted-foreground">
+                  {expandedLabel}
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  {child.meter.labels[expandedLabel].map((v) => (
+                    <code
+                      key={v}
+                      className="rounded px-1.5 py-0.5 text-[11px]"
+                    >
+                      {v}
+                    </code>
+                  ))}
+                </div>
+              </div>
+            )}
+          {child.meter && (
+            <span className="text-xs text-muted-foreground/70">
+              {child.meter.name}
+            </span>
+          )}
+        </div>
+        <Badge variant="secondary" className="shrink-0">
+          {child.count}
+        </Badge>
+      </div>
+    </Card>
+  );
 }
 
 export default function Explorer({ root, path, onNavigate }: ExplorerProps) {
@@ -170,75 +251,7 @@ export default function Explorer({ root, path, onNavigate }: ExplorerProps) {
 
       {/* Leaf nodes */}
       {leaves.map(([key, child]) => (
-        <Card
-          key={key}
-          className="transition-all duration-200 hover:border-primary/30 hover:shadow-md"
-        >
-          <div className="flex items-start gap-3 p-4">
-            <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                child.meter
-                  ? iconColorMap[child.meter.type] ?? "bg-muted text-muted-foreground"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              <MetricIcon type={child.meter?.type ?? ""} />
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{child.name}</span>
-                {child.meter && <MetricTypeBadge type={child.meter.type} />}
-              </div>
-              {child.meter?.description && (
-                <p className="line-clamp-2 text-sm text-muted-foreground">
-                  {child.meter.description}
-                </p>
-              )}
-              {child.meter?.labels &&
-                Object.keys(child.meter.labels).length > 0 && (
-                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                    <Tag className="h-3 w-3 shrink-0 text-muted-foreground/50" />
-                    {Object.entries(child.meter.labels)
-                      .sort(([a], [b]) => a.localeCompare(b))
-                      .map(([key, values]) => (
-                        <Tooltip key={key}>
-                          <TooltipTrigger asChild>
-                            <div className="inline-flex cursor-default items-center gap-1 rounded-md border bg-muted/40 px-1.5 py-0.5 text-[11px] transition-colors hover:border-primary/30 hover:bg-muted/60">
-                              <span className="text-muted-foreground">
-                                {key}
-                              </span>
-                              <span className="rounded bg-primary/10 px-1 font-semibold text-primary">
-                                {values.length}
-                              </span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-xs">
-                            <div className="flex flex-wrap gap-1">
-                              {values.map((v) => (
-                                <code
-                                  key={v}
-                                  className="rounded bg-background/20 px-1 py-0.5 text-[11px]"
-                                >
-                                  {v}
-                                </code>
-                              ))}
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      ))}
-                  </div>
-                )}
-              {child.meter && (
-                <span className="text-xs text-muted-foreground/70">
-                  {child.meter.name}
-                </span>
-              )}
-            </div>
-            <Badge variant="secondary" className="shrink-0">
-              {child.count}
-            </Badge>
-          </div>
-        </Card>
+        <LeafCard key={key} child={child} />
       ))}
     </div>
   );
