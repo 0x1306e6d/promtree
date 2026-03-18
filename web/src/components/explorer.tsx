@@ -66,10 +66,14 @@ function MetricIcon({ type }: { type: MetricType }) {
 
 function LeafCard({ child }: { child: DoublyLinkedMeterTree }) {
   const [expandedLabel, setExpandedLabel] = useState<string | null>(null);
+  const [showCombinations, setShowCombinations] = useState(false);
 
   const labelEntries = child.meter?.labels
     ? Object.entries(child.meter.labels).sort(([a], [b]) => a.localeCompare(b))
     : [];
+
+  const samples = child.meter?.samples;
+  const labelCounts = child.meter?.labelCounts;
 
   return (
     <Card className="transition-all duration-200 hover:border-primary/30 hover:shadow-md">
@@ -126,16 +130,80 @@ function LeafCard({ child }: { child: DoublyLinkedMeterTree }) {
                 </div>
                 <div className="flex flex-col gap-0.5">
                   {child.meter.labels[expandedLabel].map((v) => (
-                    <code
+                    <div
                       key={v}
-                      className="rounded px-1.5 py-0.5 text-[11px]"
+                      className="flex items-center justify-between rounded px-1.5 py-0.5"
                     >
-                      {v}
-                    </code>
+                      <code className="text-[11px]">{v}</code>
+                      {labelCounts?.[expandedLabel]?.[v] != null && (
+                        <span className="ml-2 text-[10px] text-muted-foreground">
+                          {labelCounts[expandedLabel][v]}{" "}
+                          {labelCounts[expandedLabel][v] === 1
+                            ? "series"
+                            : "series"}
+                        </span>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
             )}
+          {samples && samples.length > 0 && (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => setShowCombinations(!showCombinations)}
+                className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ChevronRight
+                  className={`h-3 w-3 transition-transform ${showCombinations ? "rotate-90" : ""}`}
+                />
+                {samples.length} label combination
+                {samples.length !== 1 ? "s" : ""}
+                {child.meter &&
+                  samples.length < child.meter.count &&
+                  ` of ${child.meter.count}`}
+              </button>
+              {showCombinations && (
+                <div className="mt-1.5 overflow-x-auto rounded-md border bg-muted/30">
+                  <table className="w-full text-[11px]">
+                    <thead>
+                      <tr className="border-b bg-muted/50">
+                        {labelEntries.map(([key]) => (
+                          <th
+                            key={key}
+                            className="px-2 py-1 text-left font-medium text-muted-foreground"
+                          >
+                            {key}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {samples.map((sample, idx) => (
+                        <tr
+                          key={idx}
+                          className="border-b last:border-b-0 hover:bg-muted/40"
+                        >
+                          {labelEntries.map(([key]) => (
+                            <td key={key} className="px-2 py-1">
+                              <code>{sample[key] ?? ""}</code>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {child.meter &&
+                    samples.length < child.meter.count && (
+                      <div className="px-2 py-1 text-[10px] text-muted-foreground">
+                        Showing {samples.length} of {child.meter.count} series
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
+          )}
           {child.meter && (
             <span className="text-xs text-muted-foreground/70">
               {child.meter.name}

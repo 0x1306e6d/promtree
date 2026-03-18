@@ -11,11 +11,16 @@ const (
 	Unknown   MetricType = ""
 )
 
+// MaxSamples caps the Samples slice to prevent payload explosion.
+const MaxSamples = 100
+
 // Meter represents a parsed Prometheus metric with its metadata and sample count.
 type Meter struct {
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Type        MetricType          `json:"type"`
-	Count       int                 `json:"count"`
-	Labels      map[string][]string `json:"labels,omitempty"`
+	Name        string                    `json:"name"`
+	Description string                    `json:"description"`
+	Type        MetricType                `json:"type"`
+	Count       int                       `json:"count"`
+	Labels      map[string][]string       `json:"labels,omitempty"`
+	Samples     []map[string]string       `json:"samples,omitempty"`
+	LabelCounts map[string]map[string]int `json:"labelCounts,omitempty"`
 }

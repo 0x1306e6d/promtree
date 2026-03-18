@@ -11,6 +11,8 @@ export interface Meter {
   readonly type: MetricType;
   readonly count: number;
   readonly labels?: { [key: string]: string[] };
+  readonly samples?: ReadonlyArray<{ [key: string]: string }>;
+  readonly labelCounts?: { [key: string]: { [value: string]: number } };
 }
 
 export interface MeterTree {

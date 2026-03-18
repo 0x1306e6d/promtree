@@ -22,7 +22,7 @@ func Parse(content string) ([]Meter, error) {
 	meters := make([]Meter, 0, len(families))
 	for name, family := range families {
 		mtype := convertType(family.GetType())
-		labels := extractLabels(family.GetMetric(), mtype)
+		labels, samples, labelCounts := extractLabelInfo(family.GetMetric(), mtype)
 
 		meters = append(meters, Meter{
 			Name:        name,
@@ -30,14 +30,20 @@ func Parse(content string) ([]Meter, error) {
 			Type:        mtype,
 			Count:       len(family.GetMetric()),
 			Labels:      labels,
+			Samples:     samples,
+			LabelCounts: labelCounts,
 		})
 	}
 	return meters, nil
 }
 
-func extractLabels(metrics []*dto.Metric, mtype MetricType) map[string][]string {
+func extractLabelInfo(metrics []*dto.Metric, mtype MetricType) (map[string][]string, []map[string]string, map[string]map[string]int) {
 	unique := make(map[string]map[string]struct{})
+	counts := make(map[string]map[string]int)
+	var sampleList []map[string]string
+
 	for _, m := range metrics {
+		sample := make(map[string]string)
 		for _, lp := range m.GetLabel() {
 			name := lp.GetName()
 			if mtype == Histogram && name == "le" {
@@ -46,25 +52,32 @@ func extractLabels(metrics []*dto.Metric, mtype MetricType) map[string][]string 
 			if mtype == Summary && name == "quantile" {
 				continue
 			}
+			value := lp.GetValue()
+			sample[name] = value
 			if unique[name] == nil {
 				unique[name] = make(map[string]struct{})
+				counts[name] = make(map[string]int)
 			}
-			unique[name][lp.GetValue()] = struct{}{}
+			unique[name][value] = struct{}{}
+			counts[name][value]++
+		}
+		if len(sample) > 0 && len(sampleList) < MaxSamples {
+			sampleList = append(sampleList, sample)
 		}
 	}
 	if len(unique) == 0 {
-		return nil
+		return nil, nil, nil
 	}
-	result := make(map[string][]string, len(unique))
+	labels := make(map[string][]string, len(unique))
 	for k, vs := range unique {
 		vals := make([]string, 0, len(vs))
 		for v := range vs {
 			vals = append(vals, v)
 		}
 		sort.Strings(vals)
-		result[k] = vals
+		labels[k] = vals
 	}
-	return result
+	return labels, sampleList, counts
 }
 
 func convertType(t dto.MetricType) MetricType {
