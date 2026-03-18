@@ -9,8 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-tooltip": "^1.2.8",
-    "radix-ui": "^1.4.4-rc.1766004502650",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
