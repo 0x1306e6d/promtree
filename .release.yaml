@@ -1,0 +1,6 @@
+project: go
+
+publish:
+  github:
+    artifacts:
+      - dist/promtree-*.tar.gz
