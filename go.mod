@@ -1,6 +1,6 @@
 module github.com/0x1306e6d/promtree
 
-go 1.25.0
+go 1.26.1
 
 require (
 	github.com/prometheus/client_model v0.6.2
