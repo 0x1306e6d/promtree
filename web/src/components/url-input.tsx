@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 
 interface UrlInputProps {
   onSubmit: (url: string) => void;
-  compact?: boolean;
 }
 
 function isValidUrl(value: string): boolean {
@@ -17,7 +16,7 @@ function isValidUrl(value: string): boolean {
   }
 }
 
-export default function UrlInput({ onSubmit, compact }: UrlInputProps) {
+export default function UrlInput({ onSubmit }: UrlInputProps) {
   const [value, setValue] = useState("");
 
   const handleSubmit = () => {
@@ -44,13 +43,9 @@ export default function UrlInput({ onSubmit, compact }: UrlInputProps) {
           className="pl-9"
         />
       </div>
-      <Button
-        disabled={!isValidUrl(value)}
-        onClick={handleSubmit}
-        size={compact ? "sm" : "default"}
-      >
+      <Button disabled={!isValidUrl(value)} onClick={handleSubmit}>
         <Search className="h-4 w-4" />
-        {!compact && <span>Explore</span>}
+        <span>Explore</span>
       </Button>
     </div>
   );

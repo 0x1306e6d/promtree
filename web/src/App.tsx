@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import Layout from "@/components/layout";
-import UrlInput from "@/components/url-input";
 import HeroSection from "@/components/hero-section";
 import Explorer from "@/components/explorer";
 import ExplorerSkeleton from "@/components/explorer-skeleton";
@@ -37,7 +36,6 @@ export default function App() {
           />
         ) : (
           <div className="flex flex-col gap-4">
-            <UrlInput onSubmit={handleSubmit} compact />
             {loading && <ExplorerSkeleton />}
             {error && <ErrorAlert message={error} />}
             {tree && (
