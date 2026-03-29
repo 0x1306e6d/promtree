@@ -1,3 +1,10 @@
+## 0.4.0 (2026-03-29)
+- Tag Docker images with release versions (#28)
+- Hide UrlInput in explorer mode and use ghost buttons in navigation (#27)
+- Add overview charts and per-metric visualizations (#26)
+- Replace lucide GitHub icon with official Primer octicon (#25)
+- Add Claude Code project rules for commits and PRs (#24)
+
 # Changelog
 
 ## 0.3.0 (2026-03-28)
