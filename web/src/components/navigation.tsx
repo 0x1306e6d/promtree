@@ -1,4 +1,5 @@
-import { TreePine, Github } from "lucide-react";
+import { TreePine } from "lucide-react";
+import { MarkGithubIcon } from "@primer/octicons-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function Navigation() {
@@ -25,7 +26,7 @@ export default function Navigation() {
           rel="noopener noreferrer"
           className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
         >
-          <Github className="h-4 w-4" />
+          <MarkGithubIcon size={16} />
         </a>
       </div>
     </nav>
