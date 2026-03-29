@@ -22,6 +22,9 @@ import type { DoublyLinkedMeterTree } from "@/types/meter";
 import type { MetricType } from "@/types/meter";
 import { resolveTreePath, getTreePath } from "@/lib/resolve-tree-path";
 import MetricTypeBadge from "./metric-type-badge";
+import OverviewChart from "./overview-chart";
+import LabelCardinalityChart from "./label-cardinality-chart";
+import LabelValueChart from "./label-value-chart";
 
 interface ExplorerProps {
   root: DoublyLinkedMeterTree;
@@ -122,12 +125,18 @@ function LeafCard({ child }: { child: DoublyLinkedMeterTree }) {
               ))}
             </div>
           )}
+          {child.meter?.labels && (
+            <LabelCardinalityChart labels={child.meter.labels} />
+          )}
           {expandedLabel &&
             child.meter?.labels?.[expandedLabel] && (
               <div className="mt-1.5 rounded-md border bg-muted/30 p-2">
                 <div className="mb-1.5 text-[11px] font-medium text-muted-foreground">
                   {expandedLabel}
                 </div>
+                {labelCounts?.[expandedLabel] && (
+                  <LabelValueChart labelCounts={labelCounts[expandedLabel]} />
+                )}
                 <div className="flex flex-col gap-0.5">
                   {child.meter.labels[expandedLabel].map((v) => (
                     <div
@@ -137,10 +146,7 @@ function LeafCard({ child }: { child: DoublyLinkedMeterTree }) {
                       <code className="text-[11px]">{v}</code>
                       {labelCounts?.[expandedLabel]?.[v] != null && (
                         <span className="ml-2 text-[10px] text-muted-foreground">
-                          {labelCounts[expandedLabel][v]}{" "}
-                          {labelCounts[expandedLabel][v] === 1
-                            ? "series"
-                            : "series"}
+                          {labelCounts[expandedLabel][v]} series
                         </span>
                       )}
                     </div>
@@ -273,6 +279,8 @@ export default function Explorer({ root, path, onNavigate }: ExplorerProps) {
           {current.count} {current.count === 1 ? "metric" : "metrics"}
         </Badge>
       </div>
+
+      <OverviewChart node={current} />
 
       {/* Branch nodes */}
       {branches.map(([key, child]) => (

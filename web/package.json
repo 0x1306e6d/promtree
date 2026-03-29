@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@primer/octicons-react": "^19.23.1",
+    "radix-ui": "^1.4.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^3.8.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",
