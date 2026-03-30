@@ -1,3 +1,6 @@
+## 0.4.1 (2026-03-30)
+- 313e31e - Trigger CD workflow from release workflow (#29) (#29)
+
 ## 0.4.0 (2026-03-29)
 - Tag Docker images with release versions (#28)
 - Hide UrlInput in explorer mode and use ghost buttons in navigation (#27)
