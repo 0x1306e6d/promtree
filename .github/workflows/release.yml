@@ -48,3 +48,8 @@ jobs:
         run: release-cli release ${{ inputs.bump && format('--bump {0}', inputs.bump) || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs: release
+    uses: ./.github/workflows/cd.yml
+    secrets: inherit
